@@ -24,6 +24,7 @@ class starcraft2():
 		player['links'] = player_object.get_player_history(soup)
 		player['history'] = player_object.get_player_history(soup)
 		player['achivements'] = player_object.get_player_achivements(soup)
+		player['statistics'] = player_object.get_player_statistics(soup)
 		if results:
 			parse_value = playerName + "/Matches"
 			try:

@@ -183,3 +183,70 @@ class starcraft2_player():
 				pass	
 
 		return matches
+
+	def get_player_statistics(self,soup):
+		stats = []
+		toss_test = []
+		terran_win_loss = []
+		zerg_win_loss = []
+		random_win_loss = []
+
+		attrs = {"style": "margin-top:0;text-align:center"}
+		matchup = {}
+
+		check_protoss = soup.find("table", attrs).find("tr", class_="Protoss")
+		if check_protoss:
+			for i in range(0,10):
+				if i % 2 != 0:
+					protoss_stats = soup.find("table", attrs).find("tr", class_="Protoss").find_all("td")[i].get_text()
+					toss_test.append(protoss_stats)
+
+			matchup["protoss v protoss"] = toss_test[0]
+			matchup["protoss v terran"] = toss_test[1]
+			matchup["protoss v zerg"] = toss_test[2]
+			matchup["protoss v random"] = toss_test[3]
+			matchup["total protoss win - loss"] = toss_test[4]
+
+		check_terran = soup.find("table", attrs).find("tr", class_="Terran")
+		if check_terran:
+			for i in range(0,10):
+				if i % 2 != 0:
+					terran_stats = soup.find("table", attrs).find("tr", class_="Terran").find_all("td")[i].get_text()
+					terran_win_loss.append(terran_stats)
+
+			matchup["terran v protoss"] = terran_win_loss[0]
+			matchup["terran v terran"] = terran_win_loss[1]
+			matchup["terran v zerg"] = terran_win_loss[2]
+			matchup["terran v random"] = terran_win_loss[3]
+			matchup["total terran win - loss"] = terran_win_loss[4]	
+
+		check_zerg = soup.find("table", attrs).find("tr", class_="Zerg")
+		if check_zerg:
+			for i in range(0,10):
+				if i % 2 != 0:
+					zerg_stats = soup.find("table", attrs).find("tr", class_="Zerg").find_all("td")[i].get_text()
+					zerg_win_loss.append(zerg_stats)
+
+			matchup["zerg v protoss"] = zerg_win_loss[0]
+			matchup["zerg v terran"] = zerg_win_loss[1]
+			matchup["zerg v zerg"] = zerg_win_loss[2]
+			matchup["zerg v random"] = zerg_win_loss[3]
+			matchup["total zerg win - loss"] = zerg_win_loss[4]	
+		
+		check_random = soup.find("table", attrs).find("tr", class_="Random")
+		if check_random:
+			for i in range(0,10):
+				if i % 2 != 0:
+					random_stats = soup.find("table", attrs).find("tr", class_="Random").find_all("td")[i].get_text()
+					random_win_loss.append(random_stats)
+
+			matchup["random v protoss"] = random_win_loss[0]
+			matchup["random v terran"] = random_win_loss[1]
+			matchup["random v zerg"] = random_win_loss[2]
+			matchup["random v random"] = random_win_loss[3]
+			matchup["total random win - loss"] = random_win_loss[4]
+
+		stats.append(matchup)
+		return stats
+		
+
