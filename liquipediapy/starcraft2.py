@@ -20,9 +20,9 @@ class starcraft2():
 		if redirect_value is not None:
 			playerName = redirect_value
 		player = {}
-		#player['info'] = player_object.get_player_infobox(soup)
-		#player['links'] = player_object.get_player_history(soup)
-		#player['history'] = player_object.get_player_history(soup)
+		player['info'] = player_object.get_player_infobox(soup)
+		player['links'] = player_object.get_player_history(soup)
+		player['history'] = player_object.get_player_history(soup)
 		player['achivements'] = player_object.get_player_achivements(soup)
 		if results:
 			parse_value = playerName + "/Matches"
