@@ -186,7 +186,7 @@ class starcraft2_player():
 
 	def get_player_statistics(self,soup):
 		stats = []
-		toss_test = []
+		toss_win_loss = []
 		terran_win_loss = []
 		zerg_win_loss = []
 		random_win_loss = []
@@ -199,13 +199,13 @@ class starcraft2_player():
 			for i in range(0,10):
 				if i % 2 != 0:
 					protoss_stats = soup.find("table", attrs).find("tr", class_="Protoss").find_all("td")[i].get_text()
-					toss_test.append(protoss_stats)
+					toss_win_loss.append(protoss_stats)
 
-			matchup["protoss v protoss"] = toss_test[0]
-			matchup["protoss v terran"] = toss_test[1]
-			matchup["protoss v zerg"] = toss_test[2]
-			matchup["protoss v random"] = toss_test[3]
-			matchup["total protoss win - loss"] = toss_test[4]
+			matchup["protoss v protoss"] = toss_win_loss[0]
+			matchup["protoss v terran"] = toss_win_loss[1]
+			matchup["protoss v zerg"] = toss_win_loss[2]
+			matchup["protoss v random"] = toss_win_loss[3]
+			matchup["total protoss win - loss"] = toss_win_loss[4]
 
 		check_terran = soup.find("table", attrs).find("tr", class_="Terran")
 		if check_terran:
