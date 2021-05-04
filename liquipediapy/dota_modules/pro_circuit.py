@@ -39,6 +39,39 @@ class dota_pro_circuit():
 			teams.append(team)		
 
 		return teams 
+	
+	def get_rankings_current(self,soup):
+		teams = []
+		rows = soup.findAll('tr')
+		rows = [row for row in rows if len(row)>6]
+		tournament_row = rows[1]
+		tournament_values = []
+		for cell in tournament_row.find_all('th'):
+			value = cell.get_text()
+			if len(value) < 2:
+				try:
+					value = cell.find('a').get('title')
+				except AttributeError:
+					value = 'TBD'	
+			tournament_values.append(value.rstrip())
+		tournament_values = ["#"] + ["Team"] + ["Points"] + tournament_values[1:]
+		for row in rows:
+			team = {}
+			cells = row.find_all('td')
+			for i in range(0,len(cells)):
+				value = cells[i].find(text=True, recursive=False)
+				if value is None:
+					value = cells[i].get_text()	
+					team[tournament_values[i]] = value	
+				if value == "99999":
+					team[tournament_values[i]] = 0
+				else:
+					value = value.rstrip()
+					team[tournament_values[i]] = value
+			teams.append(team)	
+		return(teams)
+		
+
 
 	def get_schedule(self,soup):
 		events = []
@@ -57,7 +90,5 @@ class dota_pro_circuit():
 				events.append(event)
 
 		return events	
-
-
 
 

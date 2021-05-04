@@ -70,17 +70,6 @@ class dota():
 
 		return player
 
-
-	def get_teams(self):
-		soup,__ = self.liquipedia.parse('Portal:Teams')
-		teams = []
-		templates = soup.find_all('span',class_="team-template-team-standard")
-		for team in templates:
-			teams.append(team.a['title'])
-			
-		return teams
-
-
 	def get_team_info(self,teamName,results=False):
 		team_object = dota_team()
 		teamName = team_object.process_teamName(teamName)	
@@ -142,8 +131,7 @@ class dota():
 				game['format'] = cells[1].find('abbr').get_text()
 				game['team2'] = cells[2].find('span',class_='team-template-image').find('a').get('title')
 				game['start_time'] = cells[3].find('span',class_="timer-object").get_text()
-				game['tournament'] = cells[3].find('div').a['title']
-				game['tournament_short_name'] = cells[3].find('div').get_text().rstrip()
+				game['tournament'] = cells[3].find('div').get_text().rstrip()
 				try:
 					game['twitch_channel'] = cells[3].find('span',class_="timer-object").get('data-stream-twitch')
 				except AttributeError:
@@ -214,72 +202,67 @@ class dota():
 		tournaments = []
 		if tournamentType is None:
 			page_val = 'Portal:Tournaments'
-		elif tournamentType == 'Show Matches':
-			page_val = 'Show_Matches'
 		else:
 			page_val = tournamentType.capitalize()+'_Tournaments'				
 		soup,__ = self.liquipedia.parse(page_val)
-		div_rows = soup.find_all('div',class_="divRow")
+		div_rows = soup.find_all('div',class_='divRow')
 		for row in div_rows:
 			tournament = {}
 
-			values = row.find('div',class_="divCell Tournament Header")
-			if tournamentType is None:
-				tournament['tier'] = values.a.get_text()
-				tournament['name'] = values.b.get_text()
-			else:
-				tournament['tier'] = tournamentType
+			values = row.find('div',class_="Tournament").get_text().split('\n')
+			tournament['tier'] = re.sub('\W+',' ',values[0]).strip()
+			tournament['name'] = values[1]
 
 			try:
-				tournament['icon'] = self.__image_base_url+row.find('div',class_="divCell Tournament Header").find('img').get('src')
+				tournament['icon'] = self.__image_base_url+row.find('div',class_="Tournament").find('img').get('src')
 			except AttributeError:
-				pass
+				pass	
+
+			tournament['dates'] = row.find('div',class_="Date").get_text()
 
 			try:
-				tournament['page'] = self.__image_base_url + values.b.a['href']
-			except AttributeError:
-				pass
-
-			tournament['dates'] = row.find('div',class_="divCell EventDetails Date Header").get_text().strip()
-
-			try:
-				tournament['prize_pool'] = int(row.find('div',class_="divCell EventDetails Prize Header").get_text().rstrip().replace('$','').replace(',',''))
+				tournament['prize_pool'] = int(row.find('div',class_="Prize").get_text().rstrip().replace('$','').replace(',',''))
 			except (AttributeError,ValueError):
 				tournament['prize_pool'] = 0
 
-			tournament['teams'] = re.sub('[A-Za-z]','',row.find('div',class_="divCell EventDetails PlayerNumber Header").get_text()).rstrip()	
-			location_list= unicodedata.normalize("NFKD",row.find('div',class_="divCell EventDetails Location Header").get_text().strip()).split(',')
+			tournament['teams'] = re.sub('[A-Za-z]','',row.find('div',class_="PlayerNumber").get_text()).rstrip()	
+			location_list= unicodedata.normalize("NFKD",row.find('div',class_="Location").get_text().rstrip()).split(',')	
 			tournament['host_location'] = location_list[0]
 
-			winner = row.find('div',class_="divCell Placement FirstPlace")
-			if winner:
-				tournament['winner'] = winner.get_text().strip()
-				tournament['runner_up'] = row.find('div',class_="divCell Placement SecondPlace").get_text().strip()
+			try:
+				tournament['event_location'] = location_list[1]
+			except IndexError:
+				pass	
+		
+			if len(row) < 15:
+				links_a = row.find('div',class_="SecondPlace").find_all('a')
+				tournament['links'] = []
+				for link in links_a:
+					link_list = link.get('href').split('.')
+					site_name = link_list[-2].replace('https://','')
+					tournament['links'].append({site_name:link.get('href')})
 			else:
-				tournament['winner'] = "TBD"
-				tournament['runner_up'] = "TBD"
+				tournament['winner'] = 	unicodedata.normalize("NFKD",row.find('div',class_="FirstPlace").get_text().rstrip())	
+				tournament['runner_up'] = 	unicodedata.normalize("NFKD",row.find('div',class_="SecondPlace").get_text().rstrip())	
 
 			tournaments.append(tournament)
 
-		return tournaments
+		return tournaments	
 
-	def get_tournament_baner(self, tournament_page):
-		try:
-			page,__ = self.liquipedia.parse(tournament_page.replace('https://liquipedia.net/dota2/',''))
-			
-			return f"https://liquipedia.net{page.find('div',class_='infobox-image').div.div.a.img['src']}"
-
-		except AttributeError:
-				pass
-
-	def get_pro_circuit_details(self):
-		soup,__ = self.liquipedia.parse('Dota_Pro_Circuit/2018-19/Rankings/Full')
+	def get_pro_circuit_details(self,date):
 		pro_circuit = {}
 		circuit_object = dota_pro_circuit()
-		pro_circuit['rankings'] = circuit_object.get_rankings(soup)
-		soup,__ = self.liquipedia.parse('Dota_Pro_Circuit/2018-19/Schedule')
-		pro_circuit['schedule'] = circuit_object.get_schedule(soup)
-
+		if date == "2021":
+			soup,__ = self.liquipedia.parse('Dota_Pro_Circuit/'+date+'/Rankings')
+			pro_circuit['rankings'] = circuit_object.get_rankings_current(soup)
+		else:
+			soup,__ = self.liquipedia.parse('Dota_Pro_Circuit/'+date+'/Rankings/Full')
+			pro_circuit['rankings'] = circuit_object.get_rankings(soup)
+			soup,__ = self.liquipedia.parse('Dota_Pro_Circuit/'+date+'/Schedule')
+			pro_circuit['schedule'] = circuit_object.get_schedule(soup)
 
 		return pro_circuit
+	
 
+
+	
