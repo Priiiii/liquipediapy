@@ -44,7 +44,7 @@ class starcraft2():
 		soup,__ = self.liquipedia.parse(page_val)
 		#this splits the tables up so find_tables[0] gives the first table on the page and spits out everything within it
 		find_tables = soup.find_all('div',class_="table-responsive")
-		#getting the text of the heading in the tables
+		#getting the text from the headings of the table
 		rows = soup.find_all('tr')
 		rows = [row for row in rows]
 		header_row = rows[0]
@@ -65,13 +65,12 @@ class starcraft2():
 				else:
 					value = value.rstrip()
 					tournament_row[header_list[i]] = value
+				#if the heading is winner or runner-up extract the three elements within that cell and put them in a list
 				if "Winner" in header_list[i] or "Runner-up" in header_list[i]:
-
 					if cells[i].find("a") is not None:
 						country_value = cells[i].find("a").get("title")
 					else:
 						country_value = None
-
 					race_value = None
 					find_zerg = cells[i].find("a", {"href": "/starcraft2/Zerg"})
 					find_protss = cells[i].find("a", {"href": "/starcraft2/Protoss"})
@@ -83,7 +82,7 @@ class starcraft2():
 					elif find_terran:
 						race_value = cells[i].find("a", {"href": "/starcraft2/Terran"})["title"]
 					else:
-						tournament_row[header_list[i]] = []	
+						tournament_row[header_list[i]] = None	
 					if cells[i].find("span", {"style": "white-space:pre"}) is not None:
 						id_value = cells[i].find("span", {"style": "white-space:pre"}).get_text()
 					else:
@@ -93,7 +92,16 @@ class starcraft2():
 					final_list.append(race_value)	
 					final_list.append(id_value)	
 					tournament_row[header_list[i]] = final_list
+				if "Series" in header_list[i]:
+					if cells[i].find("a") is not None:
+						tournament_row[header_list[i]] = cells[i].find("a", {"href":  re.compile("/starcraft2/*")}).get("title")
+					else:
+						tournament_row[header_list[i]] = None
+				if "Tier" in header_list[i]:
+					if cells[i].find("a") is not None:
+						tournament_row[header_list[i]] = cells[i].find("a").get_text()
+					else:
+						tournament_row[header_list[i]] = None
 			tournaments.append(tournament_row)
-
 		return(tournaments)
 				
