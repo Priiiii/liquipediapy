@@ -104,4 +104,16 @@ class starcraft2():
 						tournament_row[header_list[i]] = None
 			tournaments.append(tournament_row)
 		return(tournaments)
-				
+
+	def get_statistics(self,statisticsYear = None):
+		tournaments = []
+		if statisticsYear is None:
+			page_val = "Portal:Statistics"
+		else:
+			page_val = 'Statistics/'+statisticsYear
+		soup,__ = self.liquipedia.parse(page_val)
+		find_tables = soup.find_all('div',class_="table-responsive")
+		rows = soup.find_all('tr')
+		rows = [row for row in rows]
+
+		
