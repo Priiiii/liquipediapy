@@ -166,6 +166,14 @@ class counterstrike():
 		tournaments = []
 		if tournamentType is None:
 			page_val = 'Portal:Leagues'
+		elif tournamentType == "S-Tier":
+			page_val = tournamentType+'_Tournaments'
+		elif tournamentType == "A-Tier":
+			page_val = tournamentType+'_Tournaments'
+		elif tournamentType == "B-Tier":
+			page_val = tournamentType+'_Tournaments'
+		elif tournamentType == "C-Tier":
+			page_val = tournamentType+'_Tournaments'
 		else:
 			page_val = tournamentType.capitalize()+'_Tournaments'				
 		soup,__ = self.liquipedia.parse(page_val)
@@ -193,7 +201,6 @@ class counterstrike():
 						tournament['first_place'] = row.find('div',class_='FirstPlace').find('span',class_='team-template-text').get_text()		
 					except AttributeError:	
 						tournament['first_place'] = 'TBD'
-
 					try:
 						tournament['second_place'] = row.find('div',class_='SecondPlace').find('span',class_='team-template-text').get_text()		
 					except AttributeError:	
@@ -209,7 +216,6 @@ class counterstrike():
 				tournaments.append(tournament)
 
 		return tournaments
-
 
 	def get_weapons(self):
 		soup,__ = self.liquipedia.parse('Portal:Weapons')
