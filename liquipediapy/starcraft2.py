@@ -68,29 +68,31 @@ class starcraft2():
 				#if the heading is winner or runner-up extract the three elements within that cell and put them in a list
 				if "Winner" in header_list[i] or "Runner-up" in header_list[i]:
 					if cells[i].find("a") is not None:
-						country_value = cells[i].find("a").get("title")
-					else:
-						country_value = None
-					race_value = None
-					find_zerg = cells[i].find("a", {"href": "/starcraft2/Zerg"})
-					find_protss = cells[i].find("a", {"href": "/starcraft2/Protoss"})
-					find_terran = cells[i].find("a", {"href": "/starcraft2/Terran"})
-					if find_zerg:
-						race_value = cells[i].find("a", {"href": "/starcraft2/Zerg"})["title"]
-					elif find_protss:
-						race_value = cells[i].find("a", {"href": "/starcraft2/Protoss"})["title"]
-					elif find_terran:
-						race_value = cells[i].find("a", {"href": "/starcraft2/Terran"})["title"]
-					else:
-						tournament_row[header_list[i]] = None	
-					if cells[i].find("span", {"style": "white-space:pre"}) is not None:
-						id_value = cells[i].find("span", {"style": "white-space:pre"}).get_text()
+						id_value = cells[i].find("a").get("title")
 					else:
 						id_value = None
+						
+					if cells[i].find("span", {"class":"flag"}):
+						country_value = cells[i].find("img").get("title")
+					else:
+						country_value = None
+
+					find_zerg = cells[i].find("img", {"src":"/commons/images/thumb/e/e4/Zerg_race_icon.png/17px-Zerg_race_icon.png"})
+					find_protoss = cells[i].find("img", {"src":"/commons/images/thumb/0/0f/Protoss_race_icon.png/17px-Protoss_race_icon.png"})
+					find_terran = cells[i].find("img", {"src":"/commons/images/thumb/1/1e/Terran_race_icon.png/17px-Terran_race_icon.png"})
+
+					race_value = None
+					if find_zerg:
+						race_value = "Zerg"
+					if find_protoss:
+						race_value = "Protoss"
+					if find_terran:
+						race_value = "Terran"
+
 					final_list = []
-					final_list.append(country_value)
-					final_list.append(race_value)	
-					final_list.append(id_value)	
+					final_list.append(id_value)
+					final_list.append(race_value)
+					final_list.append(country_value)		
 					tournament_row[header_list[i]] = final_list
 				if "Series" in header_list[i]:
 					if cells[i].find("a") is not None:

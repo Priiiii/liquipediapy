@@ -50,7 +50,8 @@ class counterstrike():
 			rows = table.find_all('tr')
 			header = rows[0]
 			team['name'] = header.find('span',class_='team-template-text').get_text()
-			team['players'] = []
+			team['logo'] = self.__image_base_url+header.find('span',class_='team-template-image').find('img').get('src')
+			team['playes'] = []
 			rows = rows[2:]
 			for row in rows:		
 				player = {}
@@ -63,7 +64,7 @@ class counterstrike():
 					player_id = data[0].get_text()
 				player['id'] = unicodedata.normalize("NFKD",player_id)		
 				player['name'] = data[1].get_text()
-				team['players'].append(player)
+				team['playes'].append(player)
 			teams.append(team)	
 
 		return teams
@@ -180,12 +181,13 @@ class counterstrike():
 				tournament['date'] = row.find('div',class_='Date').get_text()
 				tournament['prize'] = unicodedata.normalize("NFKD",row.find('div',class_='Prize').get_text().rstrip())
 				team_no = unicodedata.normalize("NFKD",row.find('div',class_='PlayerNumber').get_text().rstrip()).split()
+				tournament['teams_no'] = team_no[0]
 				location = unicodedata.normalize("NFKD",row.find('div',class_='Location').get_text().rstrip()).split(',')
 				try:
-					tournament['host_location'] = location[1]
+					tournament['host_locaion'] = location[1]
 				except IndexError:	
-					tournament['host_location'] = ''	
-				tournament['event_location'] = location[0]
+					tournament['host_locaion'] = ''	
+				tournament['event_locaion'] = location[0]
 
 				placement = row.find_all('div',class_='Placement')
 				if len(placement) > 1:
@@ -209,7 +211,6 @@ class counterstrike():
 				tournaments.append(tournament)
 
 		return tournaments
-
 
 	def get_weapons(self):
 		soup,__ = self.liquipedia.parse('Portal:Weapons')
