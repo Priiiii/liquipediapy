@@ -162,20 +162,14 @@ class counterstrike():
 					
 		return games
 
-	def get_tournaments(self,tournamentType=None):
+	def get_tournaments(self,tournamentType=None,date=None):
 		tournaments = []
 		if tournamentType is None:
 			page_val = 'Portal:Leagues'
-		elif tournamentType == "S-Tier":
-			page_val = tournamentType+'_Tournaments'
-		elif tournamentType == "A-Tier":
-			page_val = tournamentType+'_Tournaments'
-		elif tournamentType == "B-Tier":
-			page_val = tournamentType+'_Tournaments'
-		elif tournamentType == "C-Tier":
-			page_val = tournamentType+'_Tournaments'
+		elif date != None:
+			page_val = tournamentType+'_Tournaments/'+date
 		else:
-			page_val = tournamentType.capitalize()+'_Tournaments'				
+			page_val = tournamentType+'_Tournaments'				
 		soup,__ = self.liquipedia.parse(page_val)
 		tables = soup.find_all('div',class_='divTable')
 		for table in tables:
