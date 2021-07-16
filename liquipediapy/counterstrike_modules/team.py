@@ -147,3 +147,5 @@ class cs_team():
 
 		return achivements
 
+	def get_team_results(self,soup):
+		print('dog')

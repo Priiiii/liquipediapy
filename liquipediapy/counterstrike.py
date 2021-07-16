@@ -91,7 +91,7 @@ class counterstrike():
 
 		return player
 
-	def get_team_info(self,teamName,results=True):
+	def get_team_info(self,teamName):
 		team_object = cs_team()
 		teamName = team_object.process_teamName(teamName)	
 		soup,redirect_value = self.liquipedia.parse(teamName)
@@ -102,15 +102,60 @@ class counterstrike():
 		team['links'] = team_object.get_team_links(soup)
 		team['team_roster'] = team_object.get_team_roster(soup)
 		team['achivements'] = team_object.get_team_achivements(soup)
-		if results:
-			parse_value = teamName + "/Results"
+
+	def get_team_results(self,teamName):
+		achivements = []
+		page_val = teamName+"/Results"
+		soup,__ = self.liquipedia.parse(page_val)
+		rows = soup.find_all("tr")
+		for row in rows:
 			try:
-				soup,__ = self.liquipedia.parse(parse_value)
-			except ex.RequestsException:
-				team['results'] = []
-			else:	
-				team['results'] = team_object.get_team_achivements(soup)
-		return team
+				if len(row)>8:
+					match = {}
+					attrs = {"style": "text-align:left"}
+					icon = "results-team-icon"
+
+					match["Date"] = row.find("td").get_text()
+					place = row.find(
+						"b", attrs={"style": "white-space:nowrap"}
+					).get_text()
+					match["Placement"] = re.sub("[A-Za-z]", "", place) 
+					match["Tier"] = row.find("a").get_text()
+					match["Type"] = row.find_all("td")[3].get_text()
+					match["game"] = row.find_all("a")[1]["title"]
+					try:
+						match["Tournament"] = row.find("td", attrs).get_text()
+					except AttributeError:
+						match["Tournament"] = row.find(
+							"td", attrs={"style": "text-align:left;"}
+						).get_text()
+					match["Results"] = row.find(
+						"td", class_="results-score"
+					).get_text()
+					try:
+						match["opponent"] = row.find(
+							"td", class_=icon
+						).find("a")["title"] 
+					except TypeError:
+						try:
+							match["opponent"] = row.find(
+								"td", class_=icon
+							).find("abbr")["title"]
+						except:
+							match["opponent"] = ""
+					match["Prize"] = row.find_all("td")[-1].get_text()
+
+					for key, value in match.items():
+						match[key] = unicodedata.normalize("NFKD", value).rstrip()
+
+					match["Placement"] = match["Placement"].replace(" ", "")
+					match["Results"] = match["Results"].replace(" ", "")
+
+					achivements.append(match)
+			except AttributeError:
+				pass
+
+		return achivements
 
 	def get_transfers(self):
 		transfers = []
